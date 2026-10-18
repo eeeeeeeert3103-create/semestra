@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light dark">
+<title>Semestra</title>
+<meta name="description" content="Planner for university students: alternating weeks, deadlines, points to pass. Works offline, data stays in your browser.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><img src="icon.svg" alt="" width="28" height="28"><span>Semestra</span></div>
+  <div class="week-pill" id="weekPill"></div>
+  <div class="top-actions">
+    <button class="ghost" id="langBtn" type="button">EN</button>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs" role="tablist">
+  <button role="tab" data-tab="today" data-i18n="tabToday"></button>
+  <button role="tab" data-tab="week" data-i18n="tabWeek"></button>
+  <button role="tab" data-tab="deadlines" data-i18n="tabDeadlines"></button>
+  <button role="tab" data-tab="subjects" data-i18n="tabSubjects"></button>
+  <button role="tab" data-tab="settings" data-i18n="tabSettings"></button>
+</nav>
+
+<main id="main"></main>
+
+<dialog id="dlg"><form id="dlgForm" method="dialog"></form></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "Semestra",
+  "short_name": "Semestra",
+  "description": "Semester planner for students: alternating weeks, deadlines, points to pass.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f6f7fb",
+  "theme_color": "#3b5bfd",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
