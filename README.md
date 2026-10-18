@@ -7,6 +7,8 @@
 ![Offline](https://img.shields.io/badge/works-offline-3b5bfd)
 ![Privacy](https://img.shields.io/badge/data-stays%20in%20your%20browser-1f9d55)
 
+**[▶ Try it online](https://eeeeeeeert3103-create.github.io/semestra/)** · no install, no sign-up
+
 **Semester planner for university students.** Alternating weeks (odd/even, «числитель/знаменатель»), deadlines and the points you still need to pass, in one page that works offline. No account, no server, no tracking.
 
 ![Semestra: today view](docs/today.png)
@@ -23,7 +25,7 @@ University timetables often alternate every other week, grades are counted in po
 Plus: export to any calendar (`.ics`, recurring events), JSON backup and restore, RU/EN interface, dark mode, mobile layout, installable as a PWA.
 
 ### Use it
-Open `index.html` in a browser. That's it: no build step, no `npm install`.
+[Open the online version](https://eeeeeeeert3103-create.github.io/semestra/), or download the repo and open `index.html` in a browser. That's it: no build step, no `npm install`.
 To host your own copy, fork the repo and enable **GitHub Pages** (Settings → Pages → Deploy from branch → `main` / root).
 
 ### Privacy and security
@@ -44,7 +46,7 @@ Ideas that would help most: timetable import from university schedule portals, m
 - **Баллы.** По каждому предмету видно, сколько набрано, сколько нужно и сколько осталось. Кнопки +1/+5/+10.
 - Экспорт в Google/Яндекс/Apple Календарь (`.ics`), резервная копия в JSON, тёмная тема, мобильная версия.
 
-**Как запустить:** открыть `index.html` в браузере. Чтобы получить свою ссылку, сделай форк и включи GitHub Pages.
+**Как запустить:** [открыть онлайн](https://eeeeeeeert3103-create.github.io/semestra/) или скачать и открыть `index.html` в браузере. Чтобы получить свою ссылку, сделай форк и включи GitHub Pages.
 
 **Данные** хранятся только в твоём браузере, страница не делает ни одного сетевого запроса.
 
