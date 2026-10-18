@@ -613,6 +613,10 @@ function start() {
   document.getElementById('langBtn').addEventListener('click', () => { S.lang = S.lang === 'ru' ? 'en' : 'ru'; save(); render(); });
   window.addEventListener('storage', (e) => { if (e.key === KEY) { S = load(); render(); } });
   if (VIEWS[location.hash.slice(1)]) tab = location.hash.slice(1);
+  // Offline support where the browser allows it (https or localhost; not in previews).
+  if ('serviceWorker' in navigator && !document.querySelector('meta[name="semestra-preview"]') && window.isSecureContext && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('sw.js').catch(() => { /* offline mode is optional */ });
+  }
   // The preview build opens with the example filled in, so there is something to try.
   if (document.querySelector('meta[name="semestra-preview"]') && !hasSaved()) loadDemo();
   setInterval(() => { if (tab === 'today' && !document.getElementById('dlg').open) render(); }, 60000);
