@@ -9,6 +9,10 @@
 
 **[▶ Try it online](https://eeeeeeeert3103-create.github.io/semestra/)** · no install, no sign-up
 
+Free, open-source **semester planner and university timetable app** for students: odd/even (A/B) week schedules, assignment deadlines and a points-to-pass tracker. Offline PWA for phone and desktop, no account, no tracking.
+
+> ⭐ If Semestra saves you time, star the repo: it helps other students find it.
+
 **Semester planner for university students.** Alternating weeks (odd/even, «числитель/знаменатель»), deadlines and the points you still need to pass, in one page that works offline. No account, no server, no tracking.
 
 ![Semestra: today view](docs/today.png)
@@ -34,12 +38,18 @@ To host your own copy, fork the repo and enable **GitHub Pages** (Settings → P
 - User text is never inserted as HTML (DOM is built with `textContent`), so pasted `<script>` stays plain text.
 - Imported backups are validated field by field; unknown fields are dropped.
 
+### FAQ
+- **Does it work on my phone?** Yes. Open the link and choose "Add to Home Screen": it installs like an app and opens without internet.
+- **Can I move my timetable to Google Calendar?** Yes. Settings → Export to calendar (`.ics`). Classes become recurring events, A/B weeks repeat every two weeks.
+- **Where is my data?** Only in your browser. Use "Download backup" to move it to another device.
+- **My university has no alternating weeks.** Turn alternation off in Settings and it becomes a regular weekly timetable.
+
 ### Contributing
-Ideas that would help most: timetable import from university schedule portals, more languages, a GPA/grade calculator. Open an issue or a PR.
+New here? Pick an issue labelled [`good first issue`](https://github.com/eeeeeeeert3103-create/semestra/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22): translations, small UI features. Bigger ideas are labelled [`help wanted`](https://github.com/eeeeeeeert3103-create/semestra/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22). The whole app is three files of plain HTML/CSS/JS, so you can start without any setup.
 
 ## Русский
 
-**Планировщик семестра для студентов.** Расписание по числителю и знаменателю, дедлайны и баллы до зачёта или автомата на одной странице. Работает без интернета, без регистрации и без сервера.
+**Бесплатный планировщик семестра для студентов.** Расписание пар по числителю и знаменателю (чётная и нечётная неделя), дедлайны и баллы до зачёта или автомата на одной странице. Работает без интернета, без регистрации и без сервера.
 
 - **Расписание с чередованием недель.** Пара бывает каждую неделю, только по числителю или только по знаменателю, а приложение само знает, какая сейчас неделя.
 - **Дедлайны** с метками «просрочено», «сегодня», «через N дн.».
@@ -49,6 +59,10 @@ Ideas that would help most: timetable import from university schedule portals, m
 **Как запустить:** [открыть онлайн](https://eeeeeeeert3103-create.github.io/semestra/) или скачать и открыть `index.html` в браузере. Чтобы получить свою ссылку, сделай форк и включи GitHub Pages.
 
 **Данные** хранятся только в твоём браузере, страница не делает ни одного сетевого запроса.
+
+**На телефоне:** открой ссылку и выбери «На главный экран», приложение будет открываться и без интернета.
+
+**Хочешь помочь?** Посмотри задачи с меткой [`good first issue`](https://github.com/eeeeeeeert3103-create/semestra/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22). Если планировщик пригодился, поставь ⭐, так его найдут другие студенты.
 
 <p>
   <img src="docs/week.png" width="49%" alt="Week view">
