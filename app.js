@@ -610,6 +610,16 @@ function start() {
     try { history.replaceState(null, '', `#${tab}`); } catch (err) { /* sandboxed */ }
     render();
   });
+  window.addEventListener('keydown', (e) => {
+    if (e.ctrlKey || e.altKey || e.metaKey || e.shiftKey
+      || document.querySelector('dialog[open]')
+      || document.activeElement.matches('input, textarea, select, [contenteditable="true"]')) return;
+    const nextTab = ['today', 'week', 'deadlines', 'subjects', 'settings'][Number(e.key) - 1];
+    if (!nextTab) return;
+    tab = nextTab;
+    try { history.replaceState(null, '', `#${tab}`); } catch (err) { /* sandboxed */ }
+    render();
+  });
   document.getElementById('langBtn').addEventListener('click', () => { S.lang = S.lang === 'ru' ? 'en' : 'ru'; save(); render(); });
   window.addEventListener('storage', (e) => { if (e.key === KEY) { S = load(); render(); } });
   if (VIEWS[location.hash.slice(1)]) tab = location.hash.slice(1);
