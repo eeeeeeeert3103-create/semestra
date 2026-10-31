@@ -22,12 +22,13 @@ const I18N = {
     weekNames: 'Названия недель', semEnd: 'Конец семестра', exportIcs: 'Экспорт в календарь (.ics)',
     exportJson: 'Скачать копию данных', importJson: 'Загрузить копию', demo: 'Заполнить примером',
     reset: 'Стереть все данные', resetConfirm: 'Стереть всё? Это нельзя отменить.', imported: 'Данные загружены',
-    badFile: 'Файл не похож на копию Semestra', saved: 'Сохранено', privacy: 'Данные хранятся только в этом браузере. Сервера нет, ничего никуда не отправляется.',
+    badFile: 'Файл не похож на копию Semestra', saved: 'Сохранено', privacy: 'Расписание, дедлайны и баллы хранятся в этом браузере и не отправляются приложением на сервер. При открытии онлайн-версии хостинг получает обычные запросы к файлам сайта и может обрабатывать технические данные соединения. Для переноса используйте копию JSON или экспорт календаря; кнопка «Стереть все данные» удаляет данные из этого браузера.',
     data: 'Данные', schedule: 'Расписание', heroEmpty: 'Добавь пары и дедлайны или заполни пример в настройках.',
     days: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
     daysLong: ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'],
     months: ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
     maxShort: 'макс.', done: 'Готово', showDone: 'Показать выполненные', chance: 'Готовность к сессии',
+    lightTheme: 'Включить светлую тему', darkTheme: 'Включить тёмную тему', navLabel: 'Основные разделы',
   },
   en: {
     tabToday: 'Today', tabWeek: 'Week', tabDeadlines: 'Deadlines', tabSubjects: 'Points', tabSettings: 'Settings',
@@ -44,12 +45,13 @@ const I18N = {
     weekNames: 'Week names', semEnd: 'Semester ends', exportIcs: 'Export to calendar (.ics)',
     exportJson: 'Download backup', importJson: 'Restore backup', demo: 'Fill with example',
     reset: 'Erase all data', resetConfirm: 'Erase everything? This cannot be undone.', imported: 'Backup restored',
-    badFile: 'This file is not a Semestra backup', saved: 'Saved', privacy: 'Your data lives only in this browser. There is no server and nothing is sent anywhere.',
+    badFile: 'This file is not a Semestra backup', saved: 'Saved', privacy: 'Your timetable, deadlines and points stay in this browser and are not sent to an app server. When you open the hosted version, the hosting provider receives ordinary requests for site files and may process connection metadata. Use a JSON backup or calendar export to transfer data; “Erase all data” removes it from this browser.',
     data: 'Data', schedule: 'Timetable', heroEmpty: 'Add classes and deadlines, or load the example in Settings.',
     days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     daysLong: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
     months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     maxShort: 'max', done: 'Done', showDone: 'Show completed', chance: 'Exam readiness',
+    lightTheme: 'Switch to light theme', darkTheme: 'Switch to dark theme', navLabel: 'Main sections',
   },
 };
 
@@ -60,6 +62,7 @@ function blank() {
   return {
     v: 1,
     lang: (navigator.language || 'ru').toLowerCase().startsWith('ru') ? 'ru' : 'en',
+    theme: 'system',
     anchor: iso(mon),
     alternating: true,
     weekNames: ['A', 'B'],
@@ -80,6 +83,7 @@ function normalize(raw) {
   const time = (x, d) => (typeof x === 'string' && /^\d{2}:\d{2}$/.test(x) ? x : d);
   const arr = (x) => (Array.isArray(x) ? x.slice(0, LIMIT.items) : []);
   s.lang = raw.lang === 'en' ? 'en' : raw.lang === 'ru' ? 'ru' : s.lang;
+  s.theme = ['light', 'dark', 'system'].includes(raw.theme) ? raw.theme : 'system';
   s.anchor = date(raw.anchor, s.anchor);
   s.alternating = raw.alternating !== false;
   if (Array.isArray(raw.weekNames)) s.weekNames = [str(raw.weekNames[0], 'A') || 'A', str(raw.weekNames[1], 'B') || 'B'];
@@ -279,7 +283,7 @@ function viewWeek() {
       l.length ? l.map((c) => classRow(c, d, () => editClass(c))) : h('div', { class: 'empty small' }, '—')));
   }
   return h('div', {},
-    h('div', { class: 'row', style: null },
+    h('div', { class: 'row week-controls' },
       h('button', { class: weekOffset === 0 ? 'btn' : 'btn secondary', type: 'button', onclick: () => { weekOffset = 0; render(); } }, t('thisWeek')),
       h('button', { class: weekOffset === 1 ? 'btn' : 'btn secondary', type: 'button', onclick: () => { weekOffset = 1; render(); } }, t('nextWeek')),
       S.alternating ? h('span', { class: `tag ${wt.toLowerCase()}` }, `${t('week')} ${weekName(wt)}`) : null,
@@ -371,8 +375,10 @@ function confirmReset() {
   form.onsubmit = (e) => {
     e.preventDefault();
     const lang = S.lang;
+    const theme = S.theme;
     S = blank();
     S.lang = lang;
+    S.theme = theme;
     save();
     dlg.close();
     render();
@@ -522,6 +528,7 @@ function exportIcs() {
 
 function loadDemo() {
   const ru = S.lang === 'ru';
+  const theme = S.theme;
   const today = new Date();
   const d = (n) => iso(addDays(today, n));
   const names = ru
@@ -560,6 +567,7 @@ function loadDemo() {
       { name: names[4], have: 12, need: 40, max: 100 },
     ],
   });
+  v.theme = theme;
   S = v;
   save();
   render();
@@ -571,9 +579,23 @@ const VIEWS = { today: viewToday, week: viewWeek, deadlines: viewDeadlines, subj
 
 function render() {
   document.documentElement.lang = S.lang;
+  if (S.theme === 'system') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.dataset.theme = S.theme;
   document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
-  document.querySelectorAll('#tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+  document.querySelectorAll('#tabs button').forEach((b) => {
+    const selected = b.dataset.tab === tab;
+    b.setAttribute('aria-selected', String(selected));
+    b.tabIndex = selected ? 0 : -1;
+  });
+  document.getElementById('main').setAttribute('aria-labelledby', `tab-${tab}`);
+  document.getElementById('tabs').setAttribute('aria-label', t('navLabel'));
   document.getElementById('langBtn').textContent = S.lang === 'ru' ? 'EN' : 'RU';
+  const themeBtn = document.getElementById('themeBtn');
+  const dark = S.theme === 'dark' || (S.theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+  themeBtn.textContent = dark ? '☀' : '◐';
+  themeBtn.setAttribute('aria-pressed', String(dark));
+  themeBtn.setAttribute('aria-label', dark ? t('lightTheme') : t('darkTheme'));
+  themeBtn.title = dark ? t('lightTheme') : t('darkTheme');
   const pill = document.getElementById('weekPill');
   const wt = weekType(planningMonday());
   pill.textContent = S.alternating ? `${t('week')} ${weekName(wt)}` : '';
@@ -611,6 +633,32 @@ function start() {
     render();
   });
   document.getElementById('langBtn').addEventListener('click', () => { S.lang = S.lang === 'ru' ? 'en' : 'ru'; save(); render(); });
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    const dark = S.theme === 'dark' || (S.theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+    S.theme = dark ? 'light' : 'dark';
+    save();
+    render();
+  });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (S.theme === 'system') render();
+  });
+  document.getElementById('tabs').addEventListener('keydown', (e) => {
+    const current = e.target.closest('button[data-tab]');
+    if (!current) return;
+    const buttons = [...document.querySelectorAll('#tabs button[data-tab]')];
+    const index = buttons.indexOf(current);
+    let next = null;
+    if (e.key === 'ArrowRight') next = buttons[(index + 1) % buttons.length];
+    if (e.key === 'ArrowLeft') next = buttons[(index - 1 + buttons.length) % buttons.length];
+    if (e.key === 'Home') next = buttons[0];
+    if (e.key === 'End') next = buttons[buttons.length - 1];
+    if (!next) return;
+    e.preventDefault();
+    tab = next.dataset.tab;
+    try { history.replaceState(null, '', `#${tab}`); } catch (err) { /* sandboxed */ }
+    render();
+    next.focus();
+  });
   window.addEventListener('storage', (e) => { if (e.key === KEY) { S = load(); render(); } });
   if (VIEWS[location.hash.slice(1)]) tab = location.hash.slice(1);
   // Offline support where the browser allows it (https or localhost; not in previews).

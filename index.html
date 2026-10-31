@@ -17,19 +17,22 @@
   <div class="brand"><img src="icon.svg" alt="" width="28" height="28"><span>Semestra</span></div>
   <div class="week-pill" id="weekPill"></div>
   <div class="top-actions">
+    <button class="ghost theme-button" id="themeBtn" type="button" aria-label="Переключить тему" title="Переключить тему">◐</button>
     <button class="ghost" id="langBtn" type="button">EN</button>
   </div>
 </header>
 
-<nav class="tabs" id="tabs" role="tablist">
-  <button role="tab" data-tab="today" data-i18n="tabToday"></button>
-  <button role="tab" data-tab="week" data-i18n="tabWeek"></button>
-  <button role="tab" data-tab="deadlines" data-i18n="tabDeadlines"></button>
-  <button role="tab" data-tab="subjects" data-i18n="tabSubjects"></button>
-  <button role="tab" data-tab="settings" data-i18n="tabSettings"></button>
+<nav class="tabs" id="tabs" role="tablist" aria-label="Основные разделы">
+  <button id="tab-today" role="tab" aria-selected="true" tabindex="0" aria-controls="main" data-tab="today" data-i18n="tabToday"></button>
+  <button id="tab-week" role="tab" aria-selected="false" tabindex="-1" aria-controls="main" data-tab="week" data-i18n="tabWeek"></button>
+  <button id="tab-deadlines" role="tab" aria-selected="false" tabindex="-1" aria-controls="main" data-tab="deadlines" data-i18n="tabDeadlines"></button>
+  <button id="tab-subjects" role="tab" aria-selected="false" tabindex="-1" aria-controls="main" data-tab="subjects" data-i18n="tabSubjects"></button>
+  <button id="tab-settings" role="tab" aria-selected="false" tabindex="-1" aria-controls="main" data-tab="settings" data-i18n="tabSettings"></button>
 </nav>
 
-<main id="main"></main>
+<main>
+  <div id="main" role="tabpanel" tabindex="0" aria-labelledby="tab-today"></div>
+</main>
 
 <dialog id="dlg"><form id="dlgForm" method="dialog"></form></dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>

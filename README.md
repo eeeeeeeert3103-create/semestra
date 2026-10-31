@@ -33,7 +33,7 @@ Plus: export to any calendar (`.ics`, recurring events), JSON backup and restore
 To host your own copy, fork the repo and enable **GitHub Pages** (Settings → Pages → Deploy from branch → `main` / root).
 
 ### Privacy and security
-- Everything is stored in your browser's `localStorage`. Nothing is sent anywhere: the page makes **zero network requests**.
+- Timetable, deadline and points data is stored in this browser's `localStorage`; the app does not send it to an app server. The hosted version still requests site files from its hosting provider, which may process ordinary connection metadata. Data stays on this browser/device and does not sync automatically; use the JSON backup or calendar export to transfer it. “Erase all data” clears the app data from this browser.
 - Strict Content-Security-Policy: no inline scripts, no third-party code, no `eval`.
 - User text is never inserted as HTML (DOM is built with `textContent`), so pasted `<script>` stays plain text.
 - Imported backups are validated field by field; unknown fields are dropped.
@@ -58,7 +58,7 @@ New here? Pick an issue labelled [`good first issue`](https://github.com/eeeeeee
 
 **Как запустить:** [открыть онлайн](https://eeeeeeeert3103-create.github.io/semestra/) или скачать и открыть `index.html` в браузере. Чтобы получить свою ссылку, сделай форк и включи GitHub Pages.
 
-**Данные** хранятся только в твоём браузере, страница не делает ни одного сетевого запроса.
+**Расписание, дедлайны и баллы** хранятся в `localStorage` этого браузера и не отправляются приложением на сервер. При открытии онлайн-версии хостинг получает обычные запросы к файлам сайта и может обрабатывать технические данные соединения. Данные не синхронизируются между устройствами; для переноса используй JSON-копию или экспорт календаря. Кнопка «Стереть все данные» удаляет их из этого браузера.
 
 **На телефоне:** открой ссылку и выбери «На главный экран», приложение будет открываться и без интернета.
 

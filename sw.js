@@ -2,7 +2,7 @@
 
 // Offline support: keep the app's own files and serve them from the cache when the network is gone.
 // Bump VERSION whenever any of these files change, so visitors get the new copy.
-const VERSION = 'semestra-v1';
+const VERSION = 'semestra-v2';
 const FILES = ['./', 'index.html', 'app.js', 'style.css', 'icon.svg', 'manifest.webmanifest'];
 
 self.addEventListener('install', (e) => {
