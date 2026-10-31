@@ -30,7 +30,9 @@
   <button id="tab-settings" role="tab" aria-selected="false" tabindex="-1" aria-controls="main" data-tab="settings" data-i18n="tabSettings"></button>
 </nav>
 
-<main id="main" role="tabpanel" tabindex="0"></main>
+<main>
+  <div id="main" role="tabpanel" tabindex="0" aria-labelledby="tab-today"></div>
+</main>
 
 <dialog id="dlg"><form id="dlgForm" method="dialog"></form></dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>

@@ -4,13 +4,14 @@
   --text: #14161c;
   --muted: #6b7180;
   --line: #e4e7ef;
-  --accent: #3b5bfd;
+  --accent: #344de0;
+  --accent-contrast: #ffffff;
   --accent-soft: #e8edff;
-  --a: #3b5bfd;
-  --b: #e0752d;
-  --ok: #1f9d55;
-  --warn: #d97706;
-  --bad: #dc2626;
+  --a: var(--accent);
+  --b: #a34e13;
+  --ok: #167a42;
+  --warn: #92400e;
+  --bad: #b42318;
   --radius: 14px;
   --shadow: 0 1px 2px rgba(20, 22, 28, .05), 0 4px 16px rgba(20, 22, 28, .04);
 }
@@ -23,9 +24,13 @@
     --muted: #949aa8;
     --line: #2a2e38;
     --accent: #7b93ff;
+    --accent-contrast: #101526;
     --accent-soft: #232a46;
     --a: #7b93ff;
     --b: #f39a5c;
+    --ok: #55d58d;
+    --warn: #f3b45f;
+    --bad: #ff858f;
     --shadow: none;
     color-scheme: dark;
   }
@@ -37,9 +42,13 @@
     --muted: #949aa8;
     --line: #2a2e38;
     --accent: #7b93ff;
+    --accent-contrast: #101526;
     --accent-soft: #232a46;
     --a: #7b93ff;
     --b: #f39a5c;
+    --ok: #55d58d;
+    --warn: #f3b45f;
+    --bad: #ff858f;
     --shadow: none;
     color-scheme: dark;
 }
@@ -94,6 +103,9 @@ main { max-width: 960px; margin: 0 auto; padding-block: 12px 48px; padding-left:
 .row { display: flex; align-items: center; gap: 12px; }
 .row + .row { margin-top: 10px; }
 .spacer { flex: 1; }
+.week-controls { flex-wrap: wrap; }
+.week-controls .spacer { display: none; }
+.week-controls > .btn:last-child { margin-left: auto; }
 .muted { color: var(--muted); }
 .small { font-size: 13px; }
 .empty { color: var(--muted); padding: 8px 0; }
@@ -104,7 +116,7 @@ main { max-width: 960px; margin: 0 auto; padding-block: 12px 48px; padding-left:
 .cls .name { font-weight: 600; }
 .cls.now .name::after {
   content: attr(data-now); margin-left: 8px; font-size: 11px; padding: 2px 6px; border-radius: 6px;
-  background: var(--ok); color: #fff; vertical-align: 2px;
+  background: var(--ok); color: var(--accent-contrast); vertical-align: 2px;
 }
 .cls.past { opacity: .5; }
 .tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 6px; margin-left: 6px; }
@@ -135,7 +147,7 @@ main { max-width: 960px; margin: 0 auto; padding-block: 12px 48px; padding-left:
 
 .btn {
   border: 0; border-radius: 10px; min-height: 42px; padding: 9px 14px; font-weight: 600;
-  background: var(--accent); color: #fff;
+  background: var(--accent); color: var(--accent-contrast);
   transition: filter .16s ease, transform .16s ease;
 }
 .btn:hover { filter: brightness(.95); }
@@ -194,7 +206,7 @@ dialog h3 { margin: 0 0 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
 }
 
 /* layout fixes */

@@ -283,7 +283,7 @@ function viewWeek() {
       l.length ? l.map((c) => classRow(c, d, () => editClass(c))) : h('div', { class: 'empty small' }, '—')));
   }
   return h('div', {},
-    h('div', { class: 'row', style: null },
+    h('div', { class: 'row week-controls' },
       h('button', { class: weekOffset === 0 ? 'btn' : 'btn secondary', type: 'button', onclick: () => { weekOffset = 0; render(); } }, t('thisWeek')),
       h('button', { class: weekOffset === 1 ? 'btn' : 'btn secondary', type: 'button', onclick: () => { weekOffset = 1; render(); } }, t('nextWeek')),
       S.alternating ? h('span', { class: `tag ${wt.toLowerCase()}` }, `${t('week')} ${weekName(wt)}`) : null,
