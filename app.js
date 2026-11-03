@@ -632,6 +632,16 @@ function start() {
     try { history.replaceState(null, '', `#${tab}`); } catch (err) { /* sandboxed */ }
     render();
   });
+  window.addEventListener('keydown', (e) => {
+    if (e.ctrlKey || e.altKey || e.metaKey || e.shiftKey
+      || document.querySelector('dialog[open]')
+      || document.activeElement.matches('input, textarea, select, [contenteditable="true"]')) return;
+    const nextTab = ['today', 'week', 'deadlines', 'subjects', 'settings'][Number(e.key) - 1];
+    if (!nextTab) return;
+    tab = nextTab;
+    try { history.replaceState(null, '', `#${tab}`); } catch (err) { /* sandboxed */ }
+    render();
+  });
   document.getElementById('langBtn').addEventListener('click', () => { S.lang = S.lang === 'ru' ? 'en' : 'ru'; save(); render(); });
   document.getElementById('themeBtn').addEventListener('click', () => {
     const dark = S.theme === 'dark' || (S.theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
