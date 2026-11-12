@@ -25,6 +25,7 @@ University timetables often alternate every other week, grades are counted in po
 - **Timetable with alternating weeks.** Mark a class as every week, week A or week B; the app always knows which week it is.
 - **Deadlines** with "overdue / today / in N days" badges.
 - **Points to pass.** For each subject: earned, needed, maximum, and how many are left. Quick +1/+5/+10 buttons.
+- **Optional AI assistant.** Enter your own API key (DeepSeek, Gemini, OpenRouter or Groq) and add classes, deadlines and points by writing plain sentences; the key stays in your browser and requests go straight to the provider.
 
 Plus: export to any calendar (`.ics`, recurring events), JSON backup and restore, RU/EN interface, dark mode, mobile layout, installable as a PWA.
 
@@ -34,6 +35,7 @@ To host your own copy, fork the repo and enable **GitHub Pages** (Settings → P
 
 ### Privacy and security
 - Timetable, deadline and points data is stored in this browser's `localStorage`; the app does not send it to an app server. The hosted version still requests site files from its hosting provider, which may process ordinary connection metadata. Data stays on this browser/device and does not sync automatically; use the JSON backup or calendar export to transfer it. “Erase all data” clears the app data from this browser.
+- **AI assistant is off by default and fully optional.** To use it you enter your own API key in Settings → “AI assistant”; the key is stored only in this browser and is never included in a JSON backup. Messages and a short timetable summary are sent directly from your browser to the provider you choose (DeepSeek, Gemini, OpenRouter or Groq) — Semestra has no server of its own.
 - Strict Content-Security-Policy: no inline scripts, no third-party code, no `eval`.
 - User text is never inserted as HTML (DOM is built with `textContent`), so pasted `<script>` stays plain text.
 - Imported backups are validated field by field; unknown fields are dropped.
@@ -42,10 +44,11 @@ To host your own copy, fork the repo and enable **GitHub Pages** (Settings → P
 - **Does it work on my phone?** Yes. Open the link and choose "Add to Home Screen": it installs like an app and opens without internet.
 - **Can I move my timetable to Google Calendar?** Yes. Settings → Export to calendar (`.ics`). Classes become recurring events, A/B weeks repeat every two weeks.
 - **Where is my data?** Only in your browser. Use "Download backup" to move it to another device.
+- **How do I use the AI assistant?** Settings → “AI assistant”: pick a provider (DeepSeek, Gemini, OpenRouter, Groq), paste your API key and press “Test key”. Then open the AI tab and write things like “add calculus on Tuesday at 10:10, room 402” or “give me 5 points for physics”. The key is stored only in this browser.
 - **My university has no alternating weeks.** Turn alternation off in Settings and it becomes a regular weekly timetable.
 
 ### Contributing
-New here? Pick an issue labelled [`good first issue`](https://github.com/eeeeeeeert3103-create/semestra/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22): translations, small UI features. Bigger ideas are labelled [`help wanted`](https://github.com/eeeeeeeert3103-create/semestra/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22). The whole app is three files of plain HTML/CSS/JS, so you can start without any setup.
+New here? Pick an issue labelled [`good first issue`](https://github.com/eeeeeeeert3103-create/semestra/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22): translations, small UI features. Bigger ideas are labelled [`help wanted`](https://github.com/eeeeeeeert3103-create/semestra/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22). The whole app is a few files of plain HTML/CSS/JS, so you can start without any setup.
 
 ## Русский
 
@@ -54,13 +57,18 @@ New here? Pick an issue labelled [`good first issue`](https://github.com/eeeeeee
 - **Расписание с чередованием недель.** Пара бывает каждую неделю, только по числителю или только по знаменателю, а приложение само знает, какая сейчас неделя.
 - **Дедлайны** с метками «просрочено», «сегодня», «через N дн.».
 - **Баллы.** По каждому предмету видно, сколько набрано, сколько нужно и сколько осталось. Кнопки +1/+5/+10.
+- **Опциональный ИИ-ассистент.** Введи свой API-ключ (DeepSeek, Gemini, OpenRouter или Groq) и добавляй пары, дедлайны и баллы обычными словами. Ключ хранится только в браузере, запросы идут напрямую провайдеру.
 - Экспорт в Google/Яндекс/Apple Календарь (`.ics`), резервная копия в JSON, тёмная тема, мобильная версия.
 
 **Как запустить:** [открыть онлайн](https://eeeeeeeert3103-create.github.io/semestra/) или скачать и открыть `index.html` в браузере. Чтобы получить свою ссылку, сделай форк и включи GitHub Pages.
 
 **Расписание, дедлайны и баллы** хранятся в `localStorage` этого браузера и не отправляются приложением на сервер. При открытии онлайн-версии хостинг получает обычные запросы к файлам сайта и может обрабатывать технические данные соединения. Данные не синхронизируются между устройствами; для переноса используй JSON-копию или экспорт календаря. Кнопка «Стереть все данные» удаляет их из этого браузера.
 
+**ИИ-ассистент выключен по умолчанию и полностью опционален.** Чтобы включить, введи свой API-ключ в Настройках → «ИИ-ассистент»: ключ хранится только в этом браузере и не попадает в JSON-копию. Сообщения и краткая сводка расписания отправляются напрямую из браузера выбранному провайдеру (DeepSeek, Gemini, OpenRouter или Groq) — своего сервера у Semestra нет.
+
 **На телефоне:** открой ссылку и выбери «На главный экран», приложение будет открываться и без интернета.
+
+**Как включить ИИ-ассистента:** Настройки → «ИИ-ассистент»: выбери провайдера (DeepSeek, Gemini, OpenRouter, Groq), вставь свой API-ключ и нажми «Проверить ключ». Затем открой вкладку AI и пиши, например, «добавь матан во вторник в 10:10, аудитория 402» или «начисли 5 баллов по физике».
 
 **Хочешь помочь?** Посмотри задачи с меткой [`good first issue`](https://github.com/eeeeeeeert3103-create/semestra/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22). Если планировщик пригодился, поставь ⭐, так его найдут другие студенты.
 

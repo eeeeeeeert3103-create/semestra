@@ -29,6 +29,17 @@ const I18N = {
     months: ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
     maxShort: 'макс.', done: 'Готово', showDone: 'Показать выполненные', chance: 'Готовность к сессии',
     lightTheme: 'Включить светлую тему', darkTheme: 'Включить тёмную тему', navLabel: 'Основные разделы',
+    ai: 'AI', aiChat: 'ИИ-ассистент',
+    aiSub: 'Напиши обычными словами — ассистент добавит пары, дедлайны, баллы или ответит на вопрос.',
+    aiPlaceholder: 'Например: добавь матан во вторник в 10:10, аудитория 402',
+    aiSend: 'Отправить', aiThinking: 'Думаю…', aiClear: 'Очистить чат',
+    aiNoKey: 'Чтобы включить ИИ, введи свой API-ключ в Настройках → «ИИ-ассистент». Запросы идут напрямую провайдеру, ключ хранится только в этом браузере.',
+    aiGoSettings: 'Открыть настройки',
+    aiProvider: 'Провайдер', aiModel: 'Модель', aiKey: 'API-ключ',
+    aiKeyHint: 'Ключ хранится только в этом браузере и не попадает в резервную копию.',
+    aiTest: 'Проверить ключ', aiTestOk: 'Ключ работает ✅', aiTestBad: 'Ключ не подошёл. Проверь провайдера, модель и сам ключ.',
+    aiPrivacy: 'Сообщения и краткая сводка расписания отправляются напрямую выбранному провайдеру (DeepSeek, Gemini, OpenRouter или Groq). Больше Semestra ничего никуда не передаёт.',
+    aiErr: 'ИИ не смог ответить',
   },
   en: {
     tabToday: 'Today', tabWeek: 'Week', tabDeadlines: 'Deadlines', tabSubjects: 'Points', tabSettings: 'Settings',
@@ -52,8 +63,131 @@ const I18N = {
     months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     maxShort: 'max', done: 'Done', showDone: 'Show completed', chance: 'Exam readiness',
     lightTheme: 'Switch to light theme', darkTheme: 'Switch to dark theme', navLabel: 'Main sections',
+    ai: 'AI', aiChat: 'AI assistant',
+    aiSub: 'Write in plain words — the assistant will add classes, deadlines and points, or answer a question.',
+    aiPlaceholder: 'E.g.: add calculus on Tuesday at 10:10, room 402',
+    aiSend: 'Send', aiThinking: 'Thinking…', aiClear: 'Clear chat',
+    aiNoKey: 'To enable the AI, enter your own API key in Settings → “AI assistant”. Requests go straight to the provider; the key stays in this browser.',
+    aiGoSettings: 'Open settings',
+    aiProvider: 'Provider', aiModel: 'Model', aiKey: 'API key',
+    aiKeyHint: 'The key is stored only in this browser and is never included in a backup.',
+    aiTest: 'Test key', aiTestOk: 'The key works ✅', aiTestBad: 'The key was rejected. Check the provider, model and the key itself.',
+    aiPrivacy: 'Messages and a short timetable summary are sent directly to the provider you choose (DeepSeek, Gemini, OpenRouter or Groq). Semestra stores and forwards nothing else.',
+    aiErr: 'The AI did not answer',
   },
 };
+
+// ---------- optional AI assistant ----------
+// Privacy-first: off until the user enters their own key. The key and the chat live
+// in localStorage only, and requests go from this browser straight to the provider.
+
+const AI_KEY = 'semestra:ai';
+const AI_CHAT_KEY = 'semestra:ai:chat';
+const AI_PROVIDERS = {
+  deepseek: { name: 'DeepSeek', url: 'https://api.deepseek.com/chat/completions', model: 'deepseek-chat' },
+  gemini: { name: 'Gemini', url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', model: 'gemini-2.5-flash' },
+  openrouter: { name: 'OpenRouter', url: 'https://openrouter.ai/api/v1/chat/completions', model: 'deepseek/deepseek-chat' },
+  groq: { name: 'Groq', url: 'https://api.groq.com/openai/v1/chat/completions', model: 'llama-3.3-70b-versatile' },
+};
+
+function aiLoadCfg() {
+  try { return Object.assign({ provider: 'deepseek', model: 'deepseek-chat', key: '' }, JSON.parse(localStorage.getItem(AI_KEY) || '{}')); }
+  catch (e) { return { provider: 'deepseek', model: 'deepseek-chat', key: '' }; }
+}
+function aiLoadChat() {
+  try { const a = JSON.parse(localStorage.getItem(AI_CHAT_KEY) || '[]'); return Array.isArray(a) ? a.slice(-40) : []; }
+  catch (e) { return []; }
+}
+let AICFG = aiLoadCfg();
+let AICHAT = aiLoadChat();
+let aiBusy = false;
+function aiSaveCfg() { try { localStorage.setItem(AI_KEY, JSON.stringify(AICFG)); } catch (e) { /* private mode */ } }
+function aiSaveChat() { try { localStorage.setItem(AI_CHAT_KEY, JSON.stringify(AICHAT.slice(-40))); } catch (e) { /* private mode */ } }
+
+// A short, factual summary of what the assistant may read (never the API key).
+function aiContext() {
+  const now = new Date();
+  const l = [`${t('today')}: ${iso(now)} (${t('daysLong')[now.getDay()]}).`];
+  if (S.alternating) l.push(`${t('week')}: ${weekName(weekType(planningMonday()))} (${weekName('A')}: ${S.anchor}, ${weekName('B')}: +7 ${t('days')})`);
+  l.push(t('schedule') + ':\n' + (S.classes.map((c) => `• ${t('days')[c.day]} ${c.start}–${c.end} ${c.name}${c.room ? ` (${c.room})` : ''}${S.alternating && c.week !== 'both' ? ` [${weekName(c.week)}]` : ''}`).join('\n') || '—'));
+  l.push(t('tabDeadlines') + ':\n' + (S.deadlines.filter((d) => !d.done).sort((a, b) => a.date.localeCompare(b.date)).map((d) => `• ${d.date} ${d.title}${d.subject ? ` (${d.subject})` : ''}`).join('\n') || '—'));
+  l.push(t('tabSubjects') + ':\n' + (S.subjects.map((x) => `• ${x.name}: ${x.have} / ${x.need} (${t('maxShort')} ${x.max})`).join('\n') || '—'));
+  l.push(`${t('semEnd')}: ${S.semEnd}.`);
+  return l.join('\n');
+}
+
+function aiSystem() {
+  return 'You are the AI assistant inside Semestra, a private offline semester planner. Answer in the user\u2019s language (Russian or English), briefly and to the point.\n'
+    + 'The user writes plain text. If they ask to change data (add a class, deadline, subject, points, mark a deadline done), return the changes as actions inside JSON and confirm briefly in reply. If it is a question, answer in reply and return no actions.\n'
+    + 'Answer ONLY with valid JSON, nothing around it: {"reply":"...","actions":[...]}\n'
+    + 'Actions (field op):\n'
+    + '- add_class {day,start,end,name,room,week}: day 0=Sunday,1=Monday..6=Saturday; times HH:MM; week "both" (every week), "A" or "B" (only that week, when alternation is on)\n'
+    + '- add_deadline {title,subject,date}: date YYYY-MM-DD\n'
+    + '- add_subject {name,have,need,max}: numbers\n'
+    + '- set_points {name,have}: update earned points of an existing subject\n'
+    + '- done_deadline {title}: mark an open deadline done\n'
+    + 'Never invent dates: if the date is unknown, ask in reply and return no actions. If the request is unclear, ask. Never delete anything unless explicitly asked.\n\n'
+    + 'CURRENT DATA:\n' + aiContext();
+}
+
+async function aiCall(messages) {
+  const p = AI_PROVIDERS[AICFG.provider] || AI_PROVIDERS.deepseek;
+  const r = await fetch(p.url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: 'Bearer ' + AICFG.key },
+    body: JSON.stringify({ model: AICFG.model || p.model, messages, temperature: 0.2, max_tokens: 1200 }),
+  });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const j = await r.json();
+  const out = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+  if (!out) throw new Error('empty');
+  return out;
+}
+
+function aiParse(out) {
+  const a = String(out).indexOf('{'), b = String(out).lastIndexOf('}');
+  if (a < 0 || b < a) return null;
+  try { return JSON.parse(String(out).slice(a, b + 1)); } catch (e) { return null; }
+}
+
+// Applies AI actions to S through the same validation as the import path; one bad op does not drop the rest.
+function aiApply(ops) {
+  const log = [];
+  for (const op of (Array.isArray(ops) ? ops : []).slice(0, 20)) {
+    try {
+      const k = String(op && op.op || '');
+      if (k === 'add_class') {
+        const v = normalize({ classes: [{ name: op.name, room: op.room, day: op.day, start: op.start, end: op.end, week: op.week }] }).classes[0];
+        if (!v) throw new Error('bad data');
+        if (minutes(v.end) <= minutes(v.start)) throw new Error('end must be after start');
+        S.classes.push(v);
+        log.push(`➕ ${v.name} · ${t('days')[v.day]} ${v.start}–${v.end}${S.alternating && v.week !== 'both' ? ` (${weekName(v.week)})` : ''}`);
+      } else if (k === 'add_deadline') {
+        const v = normalize({ deadlines: [{ title: op.title, subject: op.subject, date: op.date }] }).deadlines[0];
+        if (!v) throw new Error('bad data');
+        S.deadlines.push(v);
+        log.push(`⏰ ${v.title} — ${v.date}`);
+      } else if (k === 'add_subject') {
+        const v = normalize({ subjects: [{ name: op.name, have: op.have, need: op.need, max: op.max }] }).subjects[0];
+        if (!v) throw new Error('bad data');
+        S.subjects.push(v);
+        log.push(`📊 ${v.name}: ${v.have} / ${v.need}`);
+      } else if (k === 'set_points') {
+        const subj = S.subjects.find((x) => x.name === String(op.name || ''));
+        if (!subj) throw new Error('subject not found');
+        subj.have = Math.max(0, Math.min(subj.max, Number(op.have) || 0));
+        log.push(`🔢 ${subj.name}: ${subj.have}/${subj.max}`);
+      } else if (k === 'done_deadline') {
+        const d = S.deadlines.find((x) => !x.done && x.title === String(op.title || ''));
+        if (!d) throw new Error('deadline not found');
+        d.done = true;
+        log.push(`✅ ${d.title}`);
+      } else throw new Error('unknown op');
+    } catch (e) { log.push(`⚠️ ${String(op && op.op || '?')}: ${e.message}`); }
+  }
+  return log;
+}
+
 
 // ---------- state ----------
 
@@ -90,7 +224,7 @@ function normalize(raw) {
   s.semEnd = date(raw.semEnd, s.semEnd);
   s.classes = arr(raw.classes).map((c) => ({
     id: uid(),
-    day: Math.min(6, Math.max(1, Math.round(num(c.day, 1)))),
+    day: Math.min(6, Math.max(0, Math.round(num(c.day, 1)))),
     start: time(c.start, '09:00'),
     end: time(c.end, '10:30'),
     name: str(c.name),
@@ -275,7 +409,7 @@ function viewWeek() {
   const mon = addDays(planningMonday(), 7 * weekOffset);
   const wt = weekType(mon);
   const days = [];
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 7; i++) {
     const d = addDays(mon, i);
     const l = classesOn(d);
     days.push(h('div', { class: `card day${iso(d) === iso(new Date()) ? ' today' : ''}` },
@@ -334,6 +468,68 @@ function viewSubjects() {
     })));
 }
 
+function scrollAi() {
+  const b = document.getElementById('aiMsgs');
+  if (b) b.scrollTop = b.scrollHeight;
+}
+
+function viewAi() {
+  return h('div', { class: 'card full' },
+    h('h2', {}, t('aiChat')),
+    !AICFG.key ? h('div', {},
+      h('p', { class: 'muted' }, t('aiNoKey')),
+      h('div', { class: 'actions' },
+        h('button', { class: 'btn', type: 'button', onclick: () => { tab = 'settings'; render(); } }, t('aiGoSettings'))))
+      : h('div', {},
+        h('div', { class: 'chat', id: 'aiMsgs' },
+          AICHAT.length ? AICHAT.map((m) => h('div', { class: `msg ${m.r === 'me' ? 'me' : 'ai'}${m.err ? ' err' : ''}` },
+            h('div', { class: 'bub' }, m.t),
+            m.ch && m.ch.length ? h('ul', { class: 'chg' }, m.ch.map((c) => h('li', {}, c))) : null)) : h('div', { class: 'empty' }, t('aiSub')),
+          aiBusy ? h('div', { class: 'msg ai' }, h('div', { class: 'bub' }, t('aiThinking'))) : null),
+        h('form', { class: 'ai-form', onsubmit: onAiSubmit },
+          h('input', { type: 'text', id: 'aiIn', maxlength: 400, autocomplete: 'off', placeholder: t('aiPlaceholder'), disabled: aiBusy }),
+          h('button', { class: 'btn', type: 'submit', disabled: aiBusy }, t('aiSend'))),
+        h('div', { class: 'actions' },
+          h('button', { class: 'btn secondary', type: 'button', onclick: clearAiChat }, t('aiClear')),
+          h('span', { class: 'muted small' }, t('aiPrivacy')))));
+}
+
+async function onAiSubmit(e) {
+  e.preventDefault();
+  if (aiBusy || !AICFG.key) return;
+  const input = document.getElementById('aiIn');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  AICHAT.push({ r: 'me', t: text });
+  aiSaveChat();
+  aiBusy = true;
+  render();
+  scrollAi();
+  try {
+    const hist = AICHAT.slice(-6).map((m) => ({ role: m.r === 'me' ? 'user' : 'assistant', content: m.t }));
+    hist.push({ role: 'user', content: text });
+    const out = await aiCall([{ role: 'system', content: aiSystem() }].concat(hist));
+    const p = aiParse(out) || { reply: t('aiErr'), actions: [] };
+    const ch = aiApply(p.actions || []);
+    AICHAT.push({ r: 'ai', t: String(p.reply || '').slice(0, 2000) || t('aiErr'), ch: ch.length ? ch : null });
+    if (ch.length) save();
+    aiSaveChat();
+  } catch (err) {
+    AICHAT.push({ r: 'ai', t: `${t('aiErr')} (${String(err && err.message || err).slice(0, 80)})`, err: true });
+    aiSaveChat();
+  }
+  aiBusy = false;
+  render();
+  scrollAi();
+}
+
+function clearAiChat() {
+  AICHAT = [];
+  aiSaveChat();
+  render();
+}
+
 function viewSettings() {
   const file = h('input', { type: 'file', accept: 'application/json,.json', hidden: true, onchange: importJson });
   return h('div', { class: 'grid' },
@@ -359,7 +555,45 @@ function viewSettings() {
         h('button', { class: 'btn secondary', type: 'button', onclick: () => download('semestra-backup.json', JSON.stringify(S, null, 2), 'application/json') }, t('exportJson')),
         h('button', { class: 'btn secondary', type: 'button', onclick: () => file.click() }, t('importJson')), file,
         h('button', { class: 'btn secondary', type: 'button', onclick: loadDemo }, t('demo')),
-        h('button', { class: 'btn danger', type: 'button', onclick: confirmReset }, t('reset')))));
+        h('button', { class: 'btn danger', type: 'button', onclick: confirmReset }, t('reset')))),
+    h('div', { class: 'card full' },
+      h('h2', {}, t('aiChat')),
+      h('p', { class: 'muted small' }, t('aiPrivacy')),
+      field(t('aiProvider'), h('select', { id: 'aiProvider' },
+        Object.entries(AI_PROVIDERS).map(([id, p]) => h('option', { value: id, selected: AICFG.provider === id }, p.name)))),
+      field(t('aiModel'), h('input', { type: 'text', id: 'aiModel', value: AICFG.model, placeholder: (AI_PROVIDERS[AICFG.provider] || AI_PROVIDERS.deepseek).model })),
+      field(t('aiKey'), h('input', { type: 'password', id: 'aiKey', value: AICFG.key, autocomplete: 'off' })),
+      h('p', { class: 'muted small' }, t('aiKeyHint')),
+      h('div', { class: 'actions' },
+        h('button', { class: 'btn', type: 'button', onclick: saveAiCfg }, t('save')),
+        h('button', { class: 'btn secondary', type: 'button', onclick: testAiKey }, t('aiTest')))));
+}
+
+function saveAiCfg() {
+  const provider = document.getElementById('aiProvider').value;
+  AICFG.provider = AI_PROVIDERS[provider] ? provider : 'deepseek';
+  AICFG.model = document.getElementById('aiModel').value.trim().slice(0, 120);
+  AICFG.key = document.getElementById('aiKey').value.trim().slice(0, 200);
+  aiSaveCfg();
+  render();
+  toast(t('saved'));
+}
+
+async function testAiKey() {
+  const provider = document.getElementById('aiProvider').value;
+  const key = document.getElementById('aiKey').value.trim();
+  const model = document.getElementById('aiModel').value.trim() || (AI_PROVIDERS[provider] || AI_PROVIDERS.deepseek).model;
+  if (!key) { toast(t('aiKeyHint')); return; }
+  try {
+    const p = AI_PROVIDERS[provider] || AI_PROVIDERS.deepseek;
+    const r = await fetch(p.url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: 'Bearer ' + key },
+      body: JSON.stringify({ model, messages: [{ role: 'user', content: 'Reply with one word: ok' }], max_tokens: 16 }),
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    toast(t('aiTestOk'));
+  } catch (e) { toast(t('aiTestBad')); }
 }
 
 // In-page confirmation: native confirm() is blocked in sandboxed frames and previews.
@@ -421,7 +655,7 @@ function editClass(c) {
   const fields = [
     field(t('name'), txt('name', c.name, true)),
     h('div', { class: 'two' },
-      field(t('day'), h('select', { name: 'day' }, [1, 2, 3, 4, 5, 6].map((d) => h('option', { value: d, selected: c.day === d }, t('daysLong')[d])))),
+      field(t('day'), h('select', { name: 'day' }, [0, 1, 2, 3, 4, 5, 6].map((d) => h('option', { value: d, selected: c.day === d }, t('daysLong')[d])))),
       field(t('weekType'), h('select', { name: 'week' },
         h('option', { value: 'both', selected: c.week === 'both' }, t('both')),
         h('option', { value: 'A', selected: c.week === 'A' }, weekName('A')),
@@ -575,7 +809,7 @@ function loadDemo() {
 
 // ---------- render ----------
 
-const VIEWS = { today: viewToday, week: viewWeek, deadlines: viewDeadlines, subjects: viewSubjects, settings: viewSettings };
+const VIEWS = { today: viewToday, week: viewWeek, deadlines: viewDeadlines, subjects: viewSubjects, ai: viewAi, settings: viewSettings };
 
 function render() {
   document.documentElement.lang = S.lang;
