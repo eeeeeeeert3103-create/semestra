@@ -84,15 +84,15 @@ const I18N = {
 const AI_KEY = 'semestra:ai';
 const AI_CHAT_KEY = 'semestra:ai:chat';
 const AI_PROVIDERS = {
-  deepseek: { name: 'DeepSeek', url: 'https://api.deepseek.com/chat/completions', model: 'deepseek-chat' },
+  deepseek: { name: 'DeepSeek', url: 'https://api.deepseek.com/chat/completions', model: 'deepseek-flash' },
   gemini: { name: 'Gemini', url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', model: 'gemini-2.5-flash' },
-  openrouter: { name: 'OpenRouter', url: 'https://openrouter.ai/api/v1/chat/completions', model: 'deepseek/deepseek-chat' },
+  openrouter: { name: 'OpenRouter', url: 'https://openrouter.ai/api/v1/chat/completions', model: 'deepseek/deepseek-v4.1-flash' },
   groq: { name: 'Groq', url: 'https://api.groq.com/openai/v1/chat/completions', model: 'llama-3.3-70b-versatile' },
 };
 
 function aiLoadCfg() {
-  try { return Object.assign({ provider: 'deepseek', model: 'deepseek-chat', key: '' }, JSON.parse(localStorage.getItem(AI_KEY) || '{}')); }
-  catch (e) { return { provider: 'deepseek', model: 'deepseek-chat', key: '' }; }
+  try { return Object.assign({ provider: 'deepseek', model: 'deepseek-flash', key: '' }, JSON.parse(localStorage.getItem(AI_KEY) || '{}')); }
+  catch (e) { return { provider: 'deepseek', model: 'deepseek-flash', key: '' }; }
 }
 function aiLoadChat() {
   try { const a = JSON.parse(localStorage.getItem(AI_CHAT_KEY) || '[]'); return Array.isArray(a) ? a.slice(-40) : []; }
@@ -132,10 +132,12 @@ function aiSystem() {
 
 async function aiCall(messages) {
   const p = AI_PROVIDERS[AICFG.provider] || AI_PROVIDERS.deepseek;
+  const body = { model: AICFG.model || p.model, messages, temperature: 0.2, max_tokens: 1200 };
+  if (AICFG.provider === 'deepseek') body.thinking = { type: 'disabled' }; // speed matters in a chat
   const r = await fetch(p.url, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: 'Bearer ' + AICFG.key },
-    body: JSON.stringify({ model: AICFG.model || p.model, messages, temperature: 0.2, max_tokens: 1200 }),
+    body: JSON.stringify(body),
   });
   if (!r.ok) throw new Error('HTTP ' + r.status);
   const j = await r.json();
