@@ -180,6 +180,26 @@ dialog h3 { margin: 0 0 16px; }
 }
 .toast.show { opacity: 1; transform: translateX(-50%); }
 
+/* AI assistant chat */
+.chat { display: grid; gap: 10px; max-height: 55vh; overflow-y: auto; padding: 2px; }
+.msg { display: grid; justify-items: start; }
+.msg.me { justify-items: end; }
+.msg .bub {
+  max-width: 85%; padding: 9px 13px; border-radius: 14px; white-space: pre-wrap; overflow-wrap: anywhere;
+  background: var(--card); border: 1px solid var(--line);
+}
+.msg.me .bub { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); border-bottom-right-radius: 4px; }
+.msg.ai .bub { border-bottom-left-radius: 4px; }
+.msg.err .bub { color: var(--warn); }
+.msg .chg {
+  margin: 6px 0 0; padding: 6px 10px 6px 26px; font-size: 13px; color: var(--muted);
+  background: var(--card); border: 1px dashed var(--line); border-radius: 10px; max-width: 85%;
+}
+.msg.me .chg { justify-self: end; }
+.ai-form { display: flex; gap: 8px; margin-top: 12px; }
+.ai-form input { flex: 1; min-width: 0; }
+.ai-form .btn { flex: none; }
+
 @media (max-width: 520px) {
   .hero h1 { font-size: 22px; }
   .cls .time { width: 78px; }
@@ -211,6 +231,7 @@ dialog h3 { margin: 0 0 16px; }
 
 /* layout fixes */
 .hero { grid-column: 1 / -1; }
+.grid > .card.full { grid-column: 1 / -1; }
 .cls > div:last-child, .dl > div:nth-child(2) { min-width: 0; flex: 1; overflow-wrap: break-word; }
 .dl .spacer { display: none; }
 .day .cls { flex-direction: column; gap: 2px; }

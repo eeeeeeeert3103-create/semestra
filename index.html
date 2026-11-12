@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; connect-src https://api.deepseek.com https://generativelanguage.googleapis.com https://openrouter.ai https://api.groq.com">
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light dark">
 <title>Semestra</title>
@@ -27,6 +27,7 @@
   <button id="tab-week" role="tab" aria-selected="false" tabindex="-1" aria-controls="main" data-tab="week" data-i18n="tabWeek"></button>
   <button id="tab-deadlines" role="tab" aria-selected="false" tabindex="-1" aria-controls="main" data-tab="deadlines" data-i18n="tabDeadlines"></button>
   <button id="tab-subjects" role="tab" aria-selected="false" tabindex="-1" aria-controls="main" data-tab="subjects" data-i18n="tabSubjects"></button>
+  <button id="tab-ai" role="tab" aria-selected="false" tabindex="-1" aria-controls="main" data-tab="ai" data-i18n="ai"></button>
   <button id="tab-settings" role="tab" aria-selected="false" tabindex="-1" aria-controls="main" data-tab="settings" data-i18n="tabSettings"></button>
 </nav>
 
